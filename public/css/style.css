@@ -1,0 +1,146 @@
+:root {
+  --bg: #0B0D12;
+  --card: #141720;
+  --primary: #8B5CF6;
+  --secondary: #3B82F6;
+  --text: #F5F5F5;
+  --text-muted: #9CA3AF;
+  --border: #252936;
+
+  --font-sans: 'Inter', -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Courier New', monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  margin: 0;
+  min-height: 100vh;
+}
+
+.tt-footer {
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.875rem;
+  padding: 2rem 0;
+}
+.tt-container {
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 5rem 1.5rem 2rem;
+}
+
+.tt-brand {
+  text-align: center;
+  margin-bottom: 2.5rem;
+}
+
+.tt-brand h1 {
+  font-size: 2.25rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem;
+}
+
+.tt-accent {
+  color: var(--primary);
+}
+
+.tt-tagline {
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.tt-card {
+  background-color: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 2rem;
+}
+
+.tt-label {
+  display: block;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  margin-bottom: 0.5rem;
+  margin-top: 1.25rem;
+}
+
+.tt-label:first-of-type {
+  margin-top: 0;
+}
+
+.tt-optional {
+  font-weight: 400;
+  opacity: 0.7;
+}
+
+.tt-input {
+  width: 100%;
+  background-color: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: 0.9375rem;
+  padding: 0.75rem 1rem;
+}
+
+.tt-input:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+.tt-input::placeholder {
+  color: var(--text-muted);
+}
+
+.tt-btn {
+  width: 100%;
+  background-color: var(--primary);
+  color: var(--text);
+  border: none;
+  border-radius: 8px;
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 0.9375rem;
+  padding: 0.875rem;
+  margin-top: 1.5rem;
+  cursor: pointer;
+}
+
+.tt-btn:hover {
+  background-color: #7c4dec;
+}
+
+.tt-result {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border);
+}
+
+.tt-result-label {
+  display: block;
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+  margin-bottom: 0.5rem;
+}
+
+.tt-result-chip {
+  background-color: var(--bg);
+  border: 1px solid var(--secondary);
+  border-radius: 8px;
+  padding: 0.875rem 1rem;
+}
+
+.tt-result-code {
+  font-family: var(--font-mono);
+  color: var(--secondary);
+  font-size: 0.9375rem;
+  word-break: break-all;
+}

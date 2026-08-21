@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <%- include('partials/head') %>
+</head>
+<body>
+  <div class="tt-container">
+    <div class="tt-brand">
+      <h1>Trim<span class="tt-accent">Track</span></h1>
+      <p class="tt-tagline">Shorten a link. Track what happens next.</p>
+    </div>
+
+    <div class="tt-card">
+      <form action="/shorten" method="POST">
+        <label for="longUrl" class="tt-label">Long URL</label>
+        <input
+          type="url"
+          id="longUrl"
+          name="longUrl"
+          class="tt-input"
+          placeholder="https://example.com/some/really/long/path"
+          required
+        >
+
+        <label for="customAlias" class="tt-label">Custom alias <span class="tt-optional">(optional)</span></label>
+        <input
+          type="text"
+          id="customAlias"
+          name="customAlias"
+          class="tt-input"
+          placeholder="my-link"
+        >
+
+        <button type="submit" class="tt-btn">Shorten URL</button>
+      </form>
+
+      <% if (typeof shortUrl !== 'undefined' && shortUrl) { %>
+        <div class="tt-result">
+          <span class="tt-result-label">Your short link</span>
+          <div class="tt-result-chip">
+            <span class="tt-result-code"><%= shortUrl %></span>
+          </div>
+        </div>
+      <% } %>
+    </div>
+  </div>
+
+  <%- include('partials/footer') %>
+</body>
+</html>
