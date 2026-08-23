@@ -33,6 +33,9 @@
 
         <button type="submit" class="tt-btn">Shorten URL</button>
       </form>
+      <% if (typeof error !== 'undefined' && error) { %>
+  <div class="tt-error"><%= error %></div>
+<% } %>
 
       <% if (typeof shortUrl !== 'undefined' && shortUrl) { %>
         <div class="tt-result">

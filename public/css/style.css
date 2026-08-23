@@ -144,3 +144,9 @@ body {
   font-size: 0.9375rem;
   word-break: break-all;
 }
+
+.tt-error {
+  margin-top: 1rem;
+  color: #F87171;
+  font-size: 0.875rem;
+}
