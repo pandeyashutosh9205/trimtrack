@@ -67,6 +67,26 @@ app.post('/shorten', async (req, res) => {
   }
 });
 
+app.get('/:shortCode', async (req, res) => {
+  const { shortCode } = req.params;
+
+  try {
+    const result = await pool.query(
+      'SELECT long_url FROM urls WHERE short_code = $1',
+      [shortCode]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).send('Short link not found');
+    }
+
+    res.redirect(result.rows[0].long_url);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Something went wrong');
+  }
+});
+
 app.listen(PORT,()=>{
     console.log(`sever running on http://localhost:${PORT}`);
 });
