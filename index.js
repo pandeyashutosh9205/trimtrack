@@ -2,6 +2,8 @@ const express=require('express');
 const path=require('path');
 const pool=require('./db');
 const { generateShortCode } = require('./utils/shortCode');
+const { UAParser } = require('ua-parser-js');
+const geoip = require('geoip-lite');
 
 const app=express();
 
@@ -72,7 +74,7 @@ app.get('/:shortCode', async (req, res) => {
 
   try {
     const result = await pool.query(
-      'SELECT long_url FROM urls WHERE short_code = $1',
+      'SELECT id, long_url FROM urls WHERE short_code = $1',
       [shortCode]
     );
 
@@ -80,7 +82,27 @@ app.get('/:shortCode', async (req, res) => {
       return res.status(404).send('Short link not found');
     }
 
-    res.redirect(result.rows[0].long_url);
+    const url = result.rows[0];
+
+    const referrer = req.get('Referrer') || req.get('Referer') || null;
+    const ipAddress = req.headers['x-forwarded-for']?.split(',')[0].trim()
+      || req.socket.remoteAddress
+      || null;
+
+    const parser = new UAParser(req.headers['user-agent']);
+    const deviceType = parser.getDevice().type || 'desktop';
+
+    const geo = ipAddress ? geoip.lookup(ipAddress) : null;
+    const country = geo ? geo.country : null;
+    const city = geo ? geo.city : null;
+
+    pool.query(
+      `INSERT INTO clicks (url_id, referrer, ip_address, country, city, device_type)
+       VALUES ($1, $2, $3, $4, $5, $6)`,
+      [url.id, referrer, ipAddress, country, city, deviceType]
+    ).catch(err => console.error('Failed to record click:', err));
+
+    res.redirect(url.long_url);
   } catch (err) {
     console.error(err);
     res.status(500).send('Something went wrong');
