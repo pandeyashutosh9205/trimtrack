@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <%- include('partials/head') %>
+</head>
+<body>
+  <div class="tt-container tt-container-wide">
+    <div class="tt-brand">
+      <h1>Your <span class="tt-accent">Links</span></h1>
+    </div>
+
+    <div class="tt-card">
+      <% if (links.length === 0) { %>
+        <p class="tt-muted">No links yet. <a href="/">Create one</a>.</p>
+      <% } else { %>
+        <table class="tt-table">
+          <thead>
+            <tr>
+              <th>Short Code</th>
+              <th>Destination</th>
+              <th>Clicks</th>
+              <th>Created</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% links.forEach(link => { %>
+              <tr>
+                <td class="tt-mono"><%= link.short_code %></td>
+                <td class="tt-truncate"><%= link.long_url %></td>
+                <td><%= link.click_count %></td>
+                <td><%= new Date(link.created_at).toLocaleDateString() %></td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      <% } %>
+    </div>
+  </div>
+
+  <%- include('partials/footer') %>
+</body>
+</html>

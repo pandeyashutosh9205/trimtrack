@@ -150,3 +150,48 @@ body {
   color: #F87171;
   font-size: 0.875rem;
 }
+
+.tt-container-wide {
+  max-width: 900px;
+}
+
+.tt-muted {
+  color: var(--text-muted);
+}
+
+.tt-muted a {
+  color: var(--secondary);
+}
+
+.tt-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.tt-table th {
+  text-align: left;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  padding: 0.75rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.tt-table td {
+  padding: 0.75rem;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.9375rem;
+}
+
+.tt-mono {
+  font-family: var(--font-mono);
+  color: var(--secondary);
+}
+
+.tt-truncate {
+  max-width: 300px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

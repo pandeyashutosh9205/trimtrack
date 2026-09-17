@@ -69,6 +69,28 @@ app.post('/shorten', async (req, res) => {
   }
 });
 
+app.get('/dashboard', async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT
+        urls.id,
+        urls.short_code,
+        urls.long_url,
+        urls.created_at,
+        COUNT(clicks.id) AS click_count
+      FROM urls
+      LEFT JOIN clicks ON clicks.url_id = urls.id
+      GROUP BY urls.id
+      ORDER BY urls.created_at DESC
+    `);
+
+    res.render('dashboard', { links: result.rows });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Something went wrong');
+  }
+});
+
 app.get('/:shortCode', async (req, res) => {
   const { shortCode } = req.params;
 
