@@ -195,3 +195,70 @@ body {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+.tt-mono a {
+  color: var(--secondary);
+  text-decoration: none;
+}
+
+.tt-mono a:hover {
+  text-decoration: underline;
+}
+
+.tt-back {
+  display: inline-block;
+  color: var(--secondary);
+  text-decoration: none;
+  font-size: 0.875rem;
+  margin-bottom: 1.5rem;
+}
+
+.tt-mono-heading {
+  font-family: var(--font-mono);
+  font-size: 2rem;
+  margin: 0 0 0.5rem;
+}
+
+.tt-truncate-center {
+  max-width: 500px;
+  margin: 0 auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tt-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.tt-stat-card {
+  background-color: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.tt-stat-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+}
+
+.tt-stat-value {
+  font-family: var(--font-mono);
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: var(--primary);
+}
+
+.tt-section-title {
+  font-size: 1.125rem;
+  margin: 0 0 1rem;
+}

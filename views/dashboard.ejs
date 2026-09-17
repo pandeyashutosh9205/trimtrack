@@ -25,7 +25,7 @@
           <tbody>
             <% links.forEach(link => { %>
               <tr>
-                <td class="tt-mono"><%= link.short_code %></td>
+                <td class="tt-mono"><a href="/dashboard/<%= link.short_code %>"><%= link.short_code %></a></td>
                 <td class="tt-truncate"><%= link.long_url %></td>
                 <td><%= link.click_count %></td>
                 <td><%= new Date(link.created_at).toLocaleDateString() %></td>

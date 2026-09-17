@@ -69,6 +69,33 @@ app.post('/shorten', async (req, res) => {
   }
 });
 
+app.get('/dashboard/:shortCode', async (req, res) => {
+  const { shortCode } = req.params;
+
+  try {
+    const urlResult = await pool.query(
+      'SELECT * FROM urls WHERE short_code = $1',
+      [shortCode]
+    );
+
+    if (urlResult.rows.length === 0) {
+      return res.status(404).send('Link not found');
+    }
+
+    const url = urlResult.rows[0];
+
+    const clicksResult = await pool.query(
+      'SELECT * FROM clicks WHERE url_id = $1 ORDER BY clicked_at DESC',
+      [url.id]
+    );
+
+    res.render('link-detail', { url, clicks: clicksResult.rows });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Something went wrong');
+  }
+});
+
 app.get('/dashboard', async (req, res) => {
   try {
     const result = await pool.query(`

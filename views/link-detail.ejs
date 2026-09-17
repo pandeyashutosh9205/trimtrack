@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <%- include('partials/head') %>
+</head>
+<body>
+  <div class="tt-container tt-container-wide">
+    <div class="tt-brand">
+      <a href="/dashboard" class="tt-back">&larr; Back to dashboard</a>
+      <h1 class="tt-mono-heading"><%= url.short_code %></h1>
+      <p class="tt-tagline tt-truncate-center"><%= url.long_url %></p>
+    </div>
+
+    <div class="tt-stats-grid">
+      <div class="tt-stat-card">
+        <span class="tt-stat-label">Total Clicks</span>
+        <span class="tt-stat-value"><%= clicks.length %></span>
+      </div>
+    </div>
+
+    <div class="tt-card">
+      <h2 class="tt-section-title">Recent Clicks</h2>
+      <% if (clicks.length === 0) { %>
+        <p class="tt-muted">No clicks yet.</p>
+      <% } else { %>
+        <table class="tt-table">
+          <thead>
+            <tr>
+              <th>Time</th>
+              <th>Referrer</th>
+              <th>Location</th>
+              <th>Device</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% clicks.forEach(click => { %>
+              <tr>
+                <td><%= new Date(click.clicked_at).toLocaleString() %></td>
+                <td><%= click.referrer || 'Direct' %></td>
+                <td><%= click.city && click.country ? `${click.city}, ${click.country}` : 'Unknown' %></td>
+                <td><%= click.device_type %></td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      <% } %>
+    </div>
+  </div>
+
+  <%- include('partials/footer') %>
+</body>
+</html>
