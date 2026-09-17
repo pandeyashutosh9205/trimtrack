@@ -19,6 +19,11 @@
     </div>
 
     <div class="tt-card">
+  <h2 class="tt-section-title">Clicks Over Time</h2>
+  <canvas id="clicksChart"></canvas>
+</div>
+
+    <div class="tt-card">
       <h2 class="tt-section-title">Recent Clicks</h2>
       <% if (clicks.length === 0) { %>
         <p class="tt-muted">No clicks yet.</p>
@@ -48,5 +53,38 @@
   </div>
 
   <%- include('partials/footer') %>
+  <script src="/js/chart.js"></script>
+<script>
+  const dailyClicks = <%- JSON.stringify(dailyClicks) %>;
+
+  const labels = dailyClicks.map(row => new Date(row.day).toLocaleDateString());
+  const data = dailyClicks.map(row => parseInt(row.count, 10));
+
+  const ctx = document.getElementById('clicksChart').getContext('2d');
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'Clicks',
+        data: data,
+        borderColor: '#3B82F6',
+        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+        tension: 0.3,
+        fill: true,
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: false }
+      },
+      scales: {
+        x: { ticks: { color: '#9CA3AF' }, grid: { color: '#252936' } },
+        y: { ticks: { color: '#9CA3AF' }, grid: { color: '#252936' }, beginAtZero: true }
+      }
+    }
+  });
+</script>
 </body>
 </html>

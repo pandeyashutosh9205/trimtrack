@@ -89,7 +89,22 @@ app.get('/dashboard/:shortCode', async (req, res) => {
       [url.id]
     );
 
-    res.render('link-detail', { url, clicks: clicksResult.rows });
+    const dailyClicksResult = await pool.query(
+  `SELECT
+     DATE(clicked_at) AS day,
+     COUNT(*) AS count
+   FROM clicks
+   WHERE url_id = $1
+   GROUP BY DATE(clicked_at)
+   ORDER BY day ASC`,
+  [url.id]
+);
+
+    res.render('link-detail', {
+  url,
+  clicks: clicksResult.rows,
+  dailyClicks: dailyClicksResult.rows,
+});
   } catch (err) {
     console.error(err);
     res.status(500).send('Something went wrong');
