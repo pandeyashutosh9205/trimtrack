@@ -100,11 +100,39 @@ app.get('/dashboard/:shortCode', async (req, res) => {
   [url.id]
 );
 
-    res.render('link-detail', {
+const topReferrersResult = await pool.query(
+  `SELECT
+     COALESCE(referrer, 'Direct') AS referrer,
+     COUNT(*) AS count
+   FROM clicks
+   WHERE url_id = $1
+   GROUP BY referrer
+   ORDER BY count DESC
+   LIMIT 5`,
+  [url.id]
+);
+
+const topCountriesResult = await pool.query(
+  `SELECT
+     COALESCE(country, 'Unknown') AS country,
+     COUNT(*) AS count
+   FROM clicks
+   WHERE url_id = $1
+   GROUP BY country
+   ORDER BY count DESC
+   LIMIT 5`,
+  [url.id]
+);
+
+res.render('link-detail', {
   url,
   clicks: clicksResult.rows,
   dailyClicks: dailyClicksResult.rows,
-});
+  topReferrers: topReferrersResult.rows,
+  topCountries: topCountriesResult.rows,
+});    
+
+
   } catch (err) {
     console.error(err);
     res.status(500).send('Something went wrong');

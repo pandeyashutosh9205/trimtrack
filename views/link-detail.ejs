@@ -50,6 +50,48 @@
         </table>
       <% } %>
     </div>
+
+    <div class="tt-two-col">
+  <div class="tt-card">
+    <h2 class="tt-section-title">Top Referrers</h2>
+    <% if (topReferrers.length === 0) { %>
+      <p class="tt-muted">No data yet.</p>
+    <% } else { %>
+      <ul class="tt-bar-list">
+        <% const maxRef = Math.max(...topReferrers.map(r => parseInt(r.count, 10))); %>
+        <% topReferrers.forEach(r => { %>
+          <li class="tt-bar-row">
+            <span class="tt-bar-label"><%= r.referrer %></span>
+            <div class="tt-bar-track">
+              <div class="tt-bar-fill" style="width: <%= (parseInt(r.count, 10) / maxRef) * 100 %>%"></div>
+            </div>
+            <span class="tt-bar-count"><%= r.count %></span>
+          </li>
+        <% }) %>
+      </ul>
+    <% } %>
+  </div>
+
+  <div class="tt-card">
+    <h2 class="tt-section-title">Top Locations</h2>
+    <% if (topCountries.length === 0) { %>
+      <p class="tt-muted">No data yet.</p>
+    <% } else { %>
+      <ul class="tt-bar-list">
+        <% const maxCountry = Math.max(...topCountries.map(c => parseInt(c.count, 10))); %>
+        <% topCountries.forEach(c => { %>
+          <li class="tt-bar-row">
+            <span class="tt-bar-label"><%= c.country %></span>
+            <div class="tt-bar-track">
+              <div class="tt-bar-fill" style="width: <%= (parseInt(c.count, 10) / maxCountry) * 100 %>%"></div>
+            </div>
+            <span class="tt-bar-count"><%= c.count %></span>
+          </li>
+        <% }) %>
+      </ul>
+    <% } %>
+  </div>
+</div>
   </div>
 
   <%- include('partials/footer') %>
