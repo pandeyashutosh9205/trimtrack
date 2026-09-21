@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <%- include('partials/head') %>
+</head>
+<body>
+  <div class="tt-container">
+    <div class="tt-brand">
+      <h1>Trim<span class="tt-accent">Track</span></h1>
+      <p class="tt-tagline">Sign in to your dashboard</p>
+    </div>
+
+    <div class="tt-card">
+      <form action="/login" method="POST">
+        <label for="username" class="tt-label">Username</label>
+        <input type="text" id="username" name="username" class="tt-input" required>
+
+        <label for="password" class="tt-label">Password</label>
+        <input type="password" id="password" name="password" class="tt-input" required>
+
+        <button type="submit" class="tt-btn">Sign In</button>
+      </form>
+
+      <% if (error) { %>
+        <div class="tt-error"><%= error %></div>
+      <% } %>
+    </div>
+  </div>
+
+  <%- include('partials/footer') %>
+</body>
+</html>

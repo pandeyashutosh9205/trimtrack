@@ -4,6 +4,8 @@ const pool=require('./db');
 const { generateShortCode } = require('./utils/shortCode');
 const { UAParser } = require('ua-parser-js');
 const geoip = require('geoip-lite');
+const bcrypt = require('bcrypt');
+const session = require('express-session');
 
 const app=express();
 
@@ -13,12 +15,52 @@ const PORT=process.env.PORT||3000;
 app.set('view engine','ejs');
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.urlencoded({extended: true}));
+app.use(session({
+  secret: process.env.SESSION_SECRET,
+  resave: false,
+  saveUninitialized: false,
+  cookie: { maxAge: 1000 * 60 * 60 * 24 }
+}));
+
+
+function requireLogin(req, res, next) {
+  if (!req.session.loggedIn) {
+    return res.redirect('/login');
+  }
+  next();
+} 
+
 
 app.get('/',(req,res)=>{
     res.render('index');
 });
 
+app.get('/login', (req, res) => {
+  res.render('login', { error: null });
+});
 
+app.post('/login', async (req, res) => {
+  const { username, password } = req.body;
+
+  if (username !== process.env.ADMIN_USERNAME) {
+    return res.render('login', { error: 'Invalid username or password' });
+  }
+
+  const match = await bcrypt.compare(password, process.env.ADMIN_PASSWORD_HASH);
+
+  if (!match) {
+    return res.render('login', { error: 'Invalid username or password' });
+  }
+
+  req.session.loggedIn = true;
+  res.redirect('/dashboard');
+});
+
+app.post('/logout', (req, res) => {
+  req.session.destroy(() => {
+    res.redirect('/login');
+  });
+});
 
 app.post('/shorten', async (req, res) => {
   const { longUrl, customAlias } = req.body;
@@ -69,7 +111,7 @@ app.post('/shorten', async (req, res) => {
   }
 });
 
-app.get('/dashboard/:shortCode', async (req, res) => {
+app.get('/dashboard/:shortCode',requireLogin, async (req, res) => {
   const { shortCode } = req.params;
 
   try {
@@ -139,7 +181,7 @@ res.render('link-detail', {
   }
 });
 
-app.get('/dashboard', async (req, res) => {
+app.get('/dashboard', requireLogin,async (req, res) => {
   try {
     const result = await pool.query(`
       SELECT
