@@ -313,3 +313,7 @@ body {
   color: var(--text);
   text-align: right;
 }
+
+.tt-new-key-banner {
+  border-color: var(--secondary);
+}

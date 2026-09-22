@@ -6,6 +6,7 @@ const { UAParser } = require('ua-parser-js');
 const geoip = require('geoip-lite');
 const bcrypt = require('bcrypt');
 const session = require('express-session');
+const { generateApiKey } = require('./utils/apiKey');
 
 const app=express();
 
@@ -111,6 +112,40 @@ app.post('/shorten', async (req, res) => {
   }
 });
 
+app.get('/dashboard/api-keys', requireLogin, async (req, res) => {
+  try {
+    const result = await pool.query(
+      'SELECT id, label, created_at, last_used_at, revoked FROM api_keys ORDER BY created_at DESC'
+    );
+    res.render('api-keys', { keys: result.rows, newKey: null });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Something went wrong');
+  }
+});
+
+app.post('/dashboard/api-keys', requireLogin, async (req, res) => {
+  const { label } = req.body;
+
+  try {
+    const { rawKey, hash } = generateApiKey();
+
+    await pool.query(
+      'INSERT INTO api_keys (key_hash, label) VALUES ($1, $2)',
+      [hash, label || null]
+    );
+
+    const result = await pool.query(
+      'SELECT id, label, created_at, last_used_at, revoked FROM api_keys ORDER BY created_at DESC'
+    );
+
+    res.render('api-keys', { keys: result.rows, newKey: rawKey });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Something went wrong');
+  }
+});
+
 app.get('/dashboard/:shortCode',requireLogin, async (req, res) => {
   const { shortCode } = req.params;
 
@@ -141,6 +176,8 @@ app.get('/dashboard/:shortCode',requireLogin, async (req, res) => {
    ORDER BY day ASC`,
   [url.id]
 );
+
+
 
 const topReferrersResult = await pool.query(
   `SELECT

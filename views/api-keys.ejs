@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <%- include('partials/head') %>
+</head>
+<body>
+  <div class="tt-container tt-container-wide">
+    <div class="tt-brand">
+      <a href="/dashboard" class="tt-back">&larr; Back to dashboard</a>
+      <h1>API <span class="tt-accent">Keys</span></h1>
+      <p class="tt-tagline">Generate keys to create short links programmatically</p>
+    </div>
+
+    <% if (newKey) { %>
+      <div class="tt-card tt-new-key-banner">
+        <span class="tt-result-label">Your new API key &mdash; copy it now, it won't be shown again</span>
+        <div class="tt-result-chip">
+          <span class="tt-result-code"><%= newKey %></span>
+        </div>
+      </div>
+    <% } %>
+
+    <div class="tt-card">
+      <form action="/dashboard/api-keys" method="POST">
+        <label for="label" class="tt-label">Label <span class="tt-optional">(optional)</span></label>
+        <input type="text" id="label" name="label" class="tt-input" placeholder="e.g. My CLI tool">
+        <button type="submit" class="tt-btn">Generate New Key</button>
+      </form>
+    </div>
+
+    <div class="tt-card">
+      <h2 class="tt-section-title">Existing Keys</h2>
+      <% if (keys.length === 0) { %>
+        <p class="tt-muted">No API keys yet.</p>
+      <% } else { %>
+        <table class="tt-table">
+          <thead>
+            <tr>
+              <th>Label</th>
+              <th>Created</th>
+              <th>Last Used</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% keys.forEach(key => { %>
+              <tr>
+                <td><%= key.label || 'Unlabeled' %></td>
+                <td><%= new Date(key.created_at).toLocaleDateString() %></td>
+                <td><%= key.last_used_at ? new Date(key.last_used_at).toLocaleDateString() : 'Never' %></td>
+                <td><%= key.revoked ? 'Revoked' : 'Active' %></td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      <% } %>
+    </div>
+  </div>
+
+  <%- include('partials/footer') %>
+</body>
+</html>
