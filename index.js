@@ -7,6 +7,7 @@ const geoip = require('geoip-lite');
 const bcrypt = require('bcrypt');
 const session = require('express-session');
 const { generateApiKey } = require('./utils/apiKey');
+const { hashApiKey } = require('./utils/apiKey');
 
 const app=express();
 
@@ -16,6 +17,7 @@ const PORT=process.env.PORT||3000;
 app.set('view engine','ejs');
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.urlencoded({extended: true}));
+app.use(express.json());
 app.use(session({
   secret: process.env.SESSION_SECRET,
   resave: false,
@@ -30,6 +32,45 @@ function requireLogin(req, res, next) {
   }
   next();
 } 
+
+async function requireApiKey(req, res, next) {
+  const authHeader = req.headers['authorization'];
+
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({ error: 'Missing or malformed Authorization header. Use: Bearer <your_api_key>' });
+  }
+
+  const rawKey = authHeader.replace('Bearer ', '');
+  const hash = hashApiKey(rawKey);
+
+  try {
+    const result = await pool.query(
+      'SELECT id, revoked FROM api_keys WHERE key_hash = $1',
+      [hash]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(401).json({ error: 'Invalid API key' });
+    }
+
+    const key = result.rows[0];
+
+    if (key.revoked) {
+      return res.status(401).json({ error: 'This API key has been revoked' });
+    }
+
+    pool.query(
+      'UPDATE api_keys SET last_used_at = NOW() WHERE id = $1',
+      [key.id]
+    ).catch(err => console.error('Failed to update last_used_at:', err));
+
+    req.apiKeyId = key.id;
+    next();
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Something went wrong' });
+  }
+}
 
 
 app.get('/',(req,res)=>{
@@ -277,6 +318,57 @@ app.get('/:shortCode', async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).send('Something went wrong');
+  }
+});
+
+app.post('/api/shorten', requireApiKey, async (req, res) => {
+  const { longUrl, customAlias } = req.body;
+
+  if (!longUrl) {
+    return res.status(400).json({ error: 'longUrl is required' });
+  }
+
+  let shortCode = customAlias && customAlias.trim() !== ''
+    ? customAlias.trim()
+    : generateShortCode();
+
+  try {
+    if (customAlias && customAlias.trim() !== '') {
+      const existing = await pool.query(
+        'SELECT id FROM urls WHERE short_code = $1',
+        [shortCode]
+      );
+      if (existing.rows.length > 0) {
+        return res.status(409).json({ error: 'That custom alias is already taken' });
+      }
+    } else {
+      let isUnique = false;
+      while (!isUnique) {
+        const existing = await pool.query(
+          'SELECT id FROM urls WHERE short_code = $1',
+          [shortCode]
+        );
+        if (existing.rows.length === 0) {
+          isUnique = true;
+        } else {
+          shortCode = generateShortCode();
+        }
+      }
+    }
+
+    await pool.query(
+      'INSERT INTO urls (short_code, long_url) VALUES ($1, $2)',
+      [shortCode, longUrl]
+    );
+
+    res.status(201).json({
+      shortCode,
+      shortUrl: `${req.protocol}://${req.get('host')}/${shortCode}`,
+      longUrl,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Something went wrong' });
   }
 });
 
