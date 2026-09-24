@@ -8,11 +8,13 @@ const bcrypt = require('bcrypt');
 const session = require('express-session');
 const { generateApiKey } = require('./utils/apiKey');
 const { hashApiKey } = require('./utils/apiKey');
+const rateLimit = require('express-rate-limit');
 
 const app=express();
 
 
 const PORT=process.env.PORT||3000;
+
 
 app.set('view engine','ejs');
 app.use(express.static(path.join(__dirname, 'public')));
@@ -24,6 +26,18 @@ app.use(session({
   saveUninitialized: false,
   cookie: { maxAge: 1000 * 60 * 60 * 24 }
 }));
+
+const apiLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 100,
+  keyGenerator: (req) => {
+    const authHeader = req.headers['authorization'] || '';
+    return authHeader.replace('Bearer ', '');
+  },
+  message: { error: 'Rate limit exceeded. Max 100 requests per hour per API key.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
 
 
 function requireLogin(req, res, next) {
@@ -321,7 +335,7 @@ app.get('/:shortCode', async (req, res) => {
   }
 });
 
-app.post('/api/shorten', requireApiKey, async (req, res) => {
+app.post('/api/shorten', requireApiKey,apiLimiter, async (req, res) => {
   const { longUrl, customAlias } = req.body;
 
   if (!longUrl) {
