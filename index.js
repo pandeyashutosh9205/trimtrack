@@ -9,6 +9,7 @@ const session = require('express-session');
 const { generateApiKey } = require('./utils/apiKey');
 const { hashApiKey } = require('./utils/apiKey');
 const rateLimit = require('express-rate-limit');
+const redisClient = require('./redisClient');
 
 const app=express();
 
@@ -299,16 +300,36 @@ app.get('/:shortCode', async (req, res) => {
   const { shortCode } = req.params;
 
   try {
-    const result = await pool.query(
-      'SELECT id, long_url FROM urls WHERE short_code = $1',
-      [shortCode]
-    );
+    let longUrl;
+    let urlId;
 
-    if (result.rows.length === 0) {
-      return res.status(404).send('Short link not found');
+    const cachedUrl = await redisClient.get(`shortcode:${shortCode}`);
+
+    if (cachedUrl) {
+      
+      const cached = JSON.parse(cachedUrl);
+      longUrl = cached.longUrl;
+      urlId = cached.id;
+    } else {
+      
+      const result = await pool.query(
+        'SELECT id, long_url FROM urls WHERE short_code = $1',
+        [shortCode]
+      );
+
+      if (result.rows.length === 0) {
+        return res.status(404).send('Short link not found');
+      }
+
+      longUrl = result.rows[0].long_url;
+      urlId = result.rows[0].id;
+
+      await redisClient.set(
+        `shortcode:${shortCode}`,
+        JSON.stringify({ longUrl, id: urlId }),
+        { EX: 3600 }
+      );
     }
-
-    const url = result.rows[0];
 
     const referrer = req.get('Referrer') || req.get('Referer') || null;
     const ipAddress = req.headers['x-forwarded-for']?.split(',')[0].trim()
@@ -325,10 +346,10 @@ app.get('/:shortCode', async (req, res) => {
     pool.query(
       `INSERT INTO clicks (url_id, referrer, ip_address, country, city, device_type)
        VALUES ($1, $2, $3, $4, $5, $6)`,
-      [url.id, referrer, ipAddress, country, city, deviceType]
+      [urlId, referrer, ipAddress, country, city, deviceType]
     ).catch(err => console.error('Failed to record click:', err));
 
-    res.redirect(url.long_url);
+    res.redirect(longUrl);
   } catch (err) {
     console.error(err);
     res.status(500).send('Something went wrong');

@@ -27,6 +27,7 @@
     "express-session": "^1.19.0",
     "geoip-lite": "^1.4.10",
     "pg": "^8.23.0",
+    "redis": "^6.2.1",
     "ua-parser-js": "^2.0.10"
   }
 }
